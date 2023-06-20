@@ -24,6 +24,9 @@ class UserControllerTest {
         System.err.println(user.getBody());
     }
 
+    /**
+     * 添加用户
+     */
     @Test
     public void addUser() {
         this.userController.add("admin", "111111");
