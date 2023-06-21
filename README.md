@@ -1,5 +1,5 @@
 # young-security
-新SpringSecurityDemo项目(含新旧两种配置方式)
+## 一、新SpringSecurityDemo项目(含新旧两种配置方式)
 1. 纯后端接口项目，所以在Security配置项中禁用了Session管理、CSRF防御功能
 2. 实现了以数据库用户登录认证
 3. 以JWT作为认证信息传输token载体
@@ -17,3 +17,6 @@ http://localhost/user/hello
 #4.添加用户
 localhost/user/add/yang/111111
 ```
+## 二、TodoList:
+1. JWT双token，实现自动token刷新
+2. 实现登录挤掉线功能（可配置）
