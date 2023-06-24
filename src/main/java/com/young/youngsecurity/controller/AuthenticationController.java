@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @description:
@@ -22,7 +23,7 @@ public class AuthenticationController {
     private AuthenticationServiceImpl authenticationService;
 
     @GetMapping("/login/{username}/{password}")
-    public ResponseEntity<String> login(@PathVariable String username, @PathVariable String password) {
+    public ResponseEntity<Map<String, String>> login(@PathVariable String username, @PathVariable String password) {
         return ResponseEntity.ok(this.authenticationService.login(username, password));
     }
 

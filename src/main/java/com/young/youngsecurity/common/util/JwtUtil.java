@@ -23,13 +23,28 @@ public final class JwtUtil {
     private static final String TOKEN_SECRET = "mySecret";
 
     /**
-     * 生成jwt
+     * 生成主jwt
      *
      * @param paramMap
      * @return
      */
-    public static String generateJwt(Map<String, Object> paramMap) {
+    public static String generateMainJwt(Map<String, Object> paramMap) {
         Date date = new Date(System.currentTimeMillis() + TOKEN_TIME_OUT_HOUR);
+        return Jwts.builder()
+                .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
+                .setClaims(paramMap) //写入数据
+                .setExpiration(date) //失效时间
+                .compact();
+    }
+
+    /**
+     * 生成附jwt（刷新token用）
+     *
+     * @param paramMap
+     * @return
+     */
+    public static String generateAdditionalJwt(Map<String, Object> paramMap) {
+        Date date = new Date(System.currentTimeMillis() + (TOKEN_TIME_OUT_HOUR * 2));
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setClaims(paramMap) //写入数据

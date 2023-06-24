@@ -39,6 +39,11 @@ public class AuthCacheServiceImpl {
         this.redisTemplate.opsForHash().put(AuthCacheServiceImpl.AUTH_OUTER_KEY, authInnerKey(userDetails.getId()), userDetails);
     }
 
+    /**
+     * 删除用户登录信息
+     *
+     * @param userId
+     */
     public void removeUserDetail(Long userId) {
         this.redisTemplate.opsForHash().delete(AuthCacheServiceImpl.AUTH_OUTER_KEY, authInnerKey(userId));
     }
