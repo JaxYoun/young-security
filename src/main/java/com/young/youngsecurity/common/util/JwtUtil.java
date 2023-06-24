@@ -28,7 +28,7 @@ public final class JwtUtil {
      * @param paramMap
      * @return
      */
-    public static String generateJwt(Map<String, Object> paramMap) {
+    public static String generateMainJwt(Map<String, Object> paramMap) {
         Date date = new Date(System.currentTimeMillis() + TOKEN_TIME_OUT_HOUR);
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
