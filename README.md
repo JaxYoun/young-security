@@ -10,14 +10,18 @@
 ```shell
 #1.登录
 http://localhost/authentication/login/yang/111111
+
 #2.登出
 http://localhost/authentication/logout
+
 #3.业务测试
 http://localhost/user/hello
+
 #4.添加用户
 localhost/user/add/yang/111111
 ```
 ## 二、TodoList:
 1. 明确续期时机
-2. JWT双token，实现自动token刷新
-3. 实现登录挤掉线功能（可配置）
+2. 细化认证异常（方便token刷新）
+3. JWT双token，实现自动token刷新
+4. 实现登录挤掉线功能（可配置）
