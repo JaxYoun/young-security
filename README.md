@@ -18,5 +18,6 @@ http://localhost/user/hello
 localhost/user/add/yang/111111
 ```
 ## 二、TodoList:
-1. JWT双token，实现自动token刷新
-2. 实现登录挤掉线功能（可配置）
+1. 明确续期时机
+2. JWT双token，实现自动token刷新
+3. 实现登录挤掉线功能（可配置）
