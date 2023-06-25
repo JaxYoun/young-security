@@ -2,13 +2,13 @@ package com.young.youngsecurity.common.util;
 
 import com.young.youngsecurity.common.security.AuthCacheServiceImpl;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @description:
@@ -39,19 +39,28 @@ public final class JwtUtil {
     private static final String TOKEN_SECRET = "mySecret";
 
     /**
+     * token目的
+     */
+    private static final String TOKEN_PURPOSE = "purpose";
+
+    /**
+     * token目的-刷新jwt
+     */
+    private static final String TOKEN_PURPOSE_REFRESH = "refreshToken";
+
+    /**
      * 生成主jwt
      *
-     * @param paramMap
+     * @param userId
      * @return
      */
-    public static String generateMainJwt(Map<String, Object> paramMap) {
+    public static String generateMainJwt(Long userId) {
         Date expireAt = new Date(SHORT_TOKEN_TIME_OUT_HOUR * MILLISECOND_PER_HOUR + System.currentTimeMillis());
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setIssuer("young")
                 .setIssuedAt(new Date())
-                // .setId(uuid)
-                .setClaims(paramMap) //写入数据
+                .claim(AuthCacheServiceImpl.SUBJECT_KEY, userId) //写入数据
                 .setExpiration(expireAt) //失效时间
                 .compact();
     }
@@ -62,17 +71,35 @@ public final class JwtUtil {
      * @param mainToken
      * @return
      */
-    public static String generateAdditionalFromMainJwt(String mainToken) {
+    public static String generateAdditionFromMainJwt(String mainToken) {
         Claims claims = JwtUtil.getClaims(mainToken);
         Long userId = claims.get(AuthCacheServiceImpl.SUBJECT_KEY, Long.class);
         Date expireAt = new Date(LONG_TOKEN_TIME_OUT_HOUR * MILLISECOND_PER_HOUR + System.currentTimeMillis());
-        return Jwts.builder()
+        JwtBuilder young = Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setIssuer("young")
                 .setIssuedAt(new Date())
+                .claim(TOKEN_PURPOSE, TOKEN_PURPOSE_REFRESH)
                 .claim(AuthCacheServiceImpl.SUBJECT_KEY, userId)
-                .setExpiration(expireAt) //失效时间
-                .compact();
+                .setExpiration(expireAt);
+        return young.compact();
+    }
+
+    /**
+     * 以副jwt为蓝本，生成主jwt（刷新token用）
+     *
+     * @param additionToken
+     * @return
+     */
+    public static String generateMainFromAdditionJwt(String additionToken) {
+        Claims claims = JwtUtil.getClaims(additionToken);
+        String tokenPurpose = (String) claims.get(TOKEN_PURPOSE);
+        if (TOKEN_PURPOSE_REFRESH.equals(tokenPurpose)) {
+            Long userId = claims.get(AuthCacheServiceImpl.SUBJECT_KEY, Long.class);
+            return generateMainJwt(userId);
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -62,8 +63,27 @@ public class AuthenticationServiceImpl {
         Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
         String mainToken = this.generateMainJwt(authenticate);
         tokenPairMap.put("ts", mainToken);
-        tokenPairMap.put("tl", JwtUtil.generateAdditionalFromMainJwt(mainToken));
+        tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
         return tokenPairMap;
+    }
+
+    /**
+     * 刷新jwt
+     *
+     * @param additionJwt
+     * @return
+     */
+    public Map<String, String> refreshJwt(String additionJwt) {
+        String mainToken = JwtUtil.generateMainFromAdditionJwt(additionJwt);
+        if (StringUtils.hasText(mainToken)) {
+            Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
+            tokenPairMap.put("ts", mainToken);
+            tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
+            return tokenPairMap;
+        } else {
+            return null;
+        }
+
     }
 
     /**
@@ -74,9 +94,7 @@ public class AuthenticationServiceImpl {
      */
     private String generateMainJwt(Authentication authenticate) {
         MyUserDetails myUserDetails = (MyUserDetails) authenticate.getPrincipal();
-        Map<String, Object> map = Maps.newHashMapWithExpectedSize(2);
-        map.put(AuthCacheServiceImpl.SUBJECT_KEY, myUserDetails.getId());
-        return JwtUtil.generateMainJwt(map);
+        return JwtUtil.generateMainJwt(myUserDetails.getId());
     }
 
     /**
