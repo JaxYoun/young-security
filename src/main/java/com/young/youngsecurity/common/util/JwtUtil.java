@@ -16,10 +16,24 @@ import java.util.Map;
  */
 public final class JwtUtil {
 
-    // TOKEN的有效期1小时（S）
-    private static final int TOKEN_TIME_OUT_HOUR = 1 * 3600 * 1000;
+    /**
+     * 一小时包含的毫秒数
+     */
+    private static final int MILLISECOND_PER_HOUR = 3600_000;
 
-    // 加密KEY
+    /**
+     * 短token的有效期1小时（S）
+     */
+    private static final int SHORT_TOKEN_TIME_OUT_HOUR = 2;
+
+    /**
+     * 长token的有效期1小时（S）
+     */
+    private static final int LONG_TOKEN_TIME_OUT_HOUR = 24;
+
+    /**
+     * 加密key
+     */
     private static final String TOKEN_SECRET = "mySecret";
 
     /**
@@ -29,11 +43,11 @@ public final class JwtUtil {
      * @return
      */
     public static String generateMainJwt(Map<String, Object> paramMap) {
-        Date date = new Date(System.currentTimeMillis() + TOKEN_TIME_OUT_HOUR);
+        Date expireAt = new Date(SHORT_TOKEN_TIME_OUT_HOUR * MILLISECOND_PER_HOUR + System.currentTimeMillis());
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setClaims(paramMap) //写入数据
-                .setExpiration(date) //失效时间
+                .setExpiration(expireAt) //失效时间
                 .compact();
     }
 
@@ -44,11 +58,11 @@ public final class JwtUtil {
      * @return
      */
     public static String generateAdditionalJwt(Map<String, Object> paramMap) {
-        Date date = new Date(System.currentTimeMillis() + (TOKEN_TIME_OUT_HOUR * 2));
+        Date expireAt = new Date(LONG_TOKEN_TIME_OUT_HOUR * MILLISECOND_PER_HOUR + System.currentTimeMillis());
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setClaims(paramMap) //写入数据
-                .setExpiration(date) //失效时间
+                .setExpiration(expireAt) //失效时间
                 .compact();
     }
 
