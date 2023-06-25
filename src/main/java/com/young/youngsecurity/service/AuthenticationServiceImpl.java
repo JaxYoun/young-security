@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,7 +48,7 @@ public class AuthenticationServiceImpl {
                     myUserDetails.setAuthoritySet(Sets.newHashSet("sayHello"));
                     this.authCacheService.cacheUserDetail(myUserDetails);
                     //3.根据用户信息生成jwt
-                    return this.generateTokenPair(it);
+                    return this.generateJwtPair(it);
                 }).orElseThrow(() -> new InternalAuthenticationServiceException("Authenticate failed!"));
     }
 
@@ -59,10 +58,25 @@ public class AuthenticationServiceImpl {
      * @param authenticate
      * @return
      */
-    private Map<String, String> generateTokenPair(Authentication authenticate) {
+    private Map<String, String> generateJwtPair(Authentication authenticate) {
         Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
-        tokenPairMap.put("ts", this.generateMainToken(authenticate));
-        tokenPairMap.put("tl", this.generateAdditionalToken(authenticate));
+        String mainToken = this.generateMainJwt(authenticate);
+        tokenPairMap.put("ts", mainToken);
+        tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
+        return tokenPairMap;
+    }
+
+    /**
+     * 刷新jwt
+     *
+     * @param additionJwt
+     * @return
+     */
+    public Map<String, String> refreshJwt(String additionJwt) {
+        String mainToken = JwtUtil.generateMainFromAdditionJwt(additionJwt);
+        Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
+        tokenPairMap.put("ts", mainToken);
+        tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
         return tokenPairMap;
     }
 
@@ -72,24 +86,9 @@ public class AuthenticationServiceImpl {
      * @param authenticate
      * @return
      */
-    private String generateMainToken(Authentication authenticate) {
+    private String generateMainJwt(Authentication authenticate) {
         MyUserDetails myUserDetails = (MyUserDetails) authenticate.getPrincipal();
-        HashMap<String, Object> map = Maps.newHashMapWithExpectedSize(2);
-        map.put(AuthCacheServiceImpl.SUBJECT_KEY, myUserDetails.getId());
-        return JwtUtil.generateMainJwt(map);
-    }
-
-    /**
-     * 根据用户信息生成附加jwt
-     *
-     * @param authenticate
-     * @return
-     */
-    private String generateAdditionalToken(Authentication authenticate) {
-        MyUserDetails myUserDetails = (MyUserDetails) authenticate.getPrincipal();
-        HashMap<String, Object> map = Maps.newHashMapWithExpectedSize(2);
-        map.put(AuthCacheServiceImpl.SUBJECT_KEY, myUserDetails.getId());
-        return JwtUtil.generateAdditionalJwt(map);
+        return JwtUtil.generateMainJwt(myUserDetails.getId());
     }
 
     /**

@@ -71,15 +71,18 @@ public class MyNewVersionSecurityConfig {
                 .and()
                 //3.对于登录接口，必须允许匿名访问
                 .authorizeRequests().antMatchers("/authentication/login/**").anonymous()
-                //4.除了上述放行的接口，其余所有接口都必须认证
+                .and()
+                //4.对于jwt刷新接口，必须允许匿名访问
+                .authorizeRequests().antMatchers("/authentication/refreshJwt/**").anonymous()
+                //5.除了上述放行的接口，其余所有接口都必须认证
                 .anyRequest().authenticated()
                 .and()
-                //5.将自定义认证过滤器添加到security的认证过滤器链中
+                //6.将自定义认证过滤器添加到security的认证过滤器链中
                 .addFilterBefore(this.myJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                //6.配置认证和授权相关的异常处理器
+                //7.配置认证和授权相关的异常处理器
                 .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint).accessDeniedHandler(this.accessDeniedHandler)
                 .and()
-                //7.允许跨域访问
+                //8.允许跨域访问
                 .cors()
                 .and().build();
     }

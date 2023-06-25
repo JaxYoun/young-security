@@ -1,6 +1,5 @@
 package com.young.youngsecurity.common.meta;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -20,5 +19,13 @@ public class Result<T> {
     private String message;
 
     private T data;
+
+    public static <T> Result<T> ok(T data) {
+        return new Result<T>().setCode(200).setMessage("ok").setData(data);
+    }
+
+    public static <T> Result<T> ko(int code, String message) {
+        return new Result<T>().setCode(code).setMessage(message);
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.young.youngsecurity.controller;
 
+import com.young.youngsecurity.common.meta.Result;
 import com.young.youngsecurity.service.AuthenticationServiceImpl;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +23,18 @@ public class AuthenticationController {
     private AuthenticationServiceImpl authenticationService;
 
     @GetMapping("/login/{username}/{password}")
-    public ResponseEntity<Map<String, String>> login(@PathVariable String username, @PathVariable String password) {
-        return ResponseEntity.ok(this.authenticationService.login(username, password));
+    public Result<Map<String, String>> login(@PathVariable String username, @PathVariable String password) {
+        return Result.ok(this.authenticationService.login(username, password));
+    }
+
+    @GetMapping("/refreshJwt/{additionJwt}")
+    public Result<Map<String, String>> refreshJwt(@PathVariable String additionJwt) {
+        return Result.ok(this.authenticationService.refreshJwt(additionJwt));
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Boolean> logout() {
-        return ResponseEntity.ok(this.authenticationService.logout());
+    public Result<Boolean> logout() {
+        return Result.ok(this.authenticationService.logout());
     }
 
 }
