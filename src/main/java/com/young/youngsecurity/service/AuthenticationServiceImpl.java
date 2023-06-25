@@ -61,8 +61,8 @@ public class AuthenticationServiceImpl {
      */
     private Map<String, String> generateTokenPair(Authentication authenticate) {
         Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
-        tokenPairMap.put("t0", this.generateMainToken(authenticate));
-        tokenPairMap.put("t1", this.generateAdditionalToken(authenticate));
+        tokenPairMap.put("ts", this.generateMainToken(authenticate));
+        tokenPairMap.put("tl", this.generateAdditionalToken(authenticate));
         return tokenPairMap;
     }
 
