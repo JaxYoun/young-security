@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -75,15 +74,10 @@ public class AuthenticationServiceImpl {
      */
     public Map<String, String> refreshJwt(String additionJwt) {
         String mainToken = JwtUtil.generateMainFromAdditionJwt(additionJwt);
-        if (StringUtils.hasText(mainToken)) {
-            Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
-            tokenPairMap.put("ts", mainToken);
-            tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
-            return tokenPairMap;
-        } else {
-            return null;
-        }
-
+        Map<String, String> tokenPairMap = Maps.newHashMapWithExpectedSize(2);
+        tokenPairMap.put("ts", mainToken);
+        tokenPairMap.put("tl", JwtUtil.generateAdditionFromMainJwt(mainToken));
+        return tokenPairMap;
     }
 
     /**

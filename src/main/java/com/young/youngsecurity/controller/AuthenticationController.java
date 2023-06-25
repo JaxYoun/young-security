@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @description:
@@ -30,12 +29,7 @@ public class AuthenticationController {
 
     @GetMapping("/refreshJwt/{additionJwt}")
     public Result<Map<String, String>> refreshJwt(@PathVariable String additionJwt) {
-        Map<String, String> body = this.authenticationService.refreshJwt(additionJwt);
-        if (Objects.nonNull(body)) {
-            return Result.ok(body);
-        } else {
-            return Result.ko(402, "Token invalid, login required!");
-        }
+        return Result.ok(this.authenticationService.refreshJwt(additionJwt));
     }
 
     @GetMapping("/logout")

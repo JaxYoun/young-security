@@ -1,12 +1,11 @@
 package com.young.youngsecurity.common.util;
 
-import com.young.youngsecurity.common.security.AuthCacheServiceImpl;
+import com.young.youngsecurity.common.exception.MyException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
@@ -41,12 +40,17 @@ public final class JwtUtil {
     /**
      * token目的
      */
-    private static final String TOKEN_PURPOSE = "purpose";
+    public static final String TOKEN_PURPOSE = "purpose";
 
     /**
      * token目的-刷新jwt
      */
-    private static final String TOKEN_PURPOSE_REFRESH = "refreshToken";
+    public static final String TOKEN_PURPOSE_REFRESH = "refreshToken";
+
+    /**
+     * 主体key
+     */
+    public static final String SUBJECT_KEY = "id";
 
     /**
      * 生成主jwt
@@ -60,7 +64,7 @@ public final class JwtUtil {
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setIssuer("young")
                 .setIssuedAt(new Date())
-                .claim(AuthCacheServiceImpl.SUBJECT_KEY, userId) //写入数据
+                .claim(SUBJECT_KEY, userId) //写入数据
                 .setExpiration(expireAt) //失效时间
                 .compact();
     }
@@ -73,16 +77,16 @@ public final class JwtUtil {
      */
     public static String generateAdditionFromMainJwt(String mainToken) {
         Claims claims = JwtUtil.getClaims(mainToken);
-        Long userId = claims.get(AuthCacheServiceImpl.SUBJECT_KEY, Long.class);
+        Long userId = claims.get(SUBJECT_KEY, Long.class);
         Date expireAt = new Date(LONG_TOKEN_TIME_OUT_HOUR * MILLISECOND_PER_HOUR + System.currentTimeMillis());
-        JwtBuilder young = Jwts.builder()
+        return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET) //指定加密算法
                 .setIssuer("young")
                 .setIssuedAt(new Date())
                 .claim(TOKEN_PURPOSE, TOKEN_PURPOSE_REFRESH)
-                .claim(AuthCacheServiceImpl.SUBJECT_KEY, userId)
-                .setExpiration(expireAt);
-        return young.compact();
+                .claim(SUBJECT_KEY, userId)
+                .setExpiration(expireAt)
+                .compact();
     }
 
     /**
@@ -95,10 +99,10 @@ public final class JwtUtil {
         Claims claims = JwtUtil.getClaims(additionToken);
         String tokenPurpose = (String) claims.get(TOKEN_PURPOSE);
         if (TOKEN_PURPOSE_REFRESH.equals(tokenPurpose)) {
-            Long userId = claims.get(AuthCacheServiceImpl.SUBJECT_KEY, Long.class);
+            Long userId = claims.get(SUBJECT_KEY, Long.class);
             return generateMainJwt(userId);
         } else {
-            return null;
+            throw new MyException(HttpStatus.PAYMENT_REQUIRED.value(), HttpStatus.PAYMENT_REQUIRED.getReasonPhrase());
         }
     }
 
@@ -106,28 +110,17 @@ public final class JwtUtil {
      * 获取Token中的claims信息
      */
     public static Claims getClaims(String token) {
-        return Jwts.parser().setSigningKey(TOKEN_SECRET).parseClaimsJws(token).getBody();
-    }
-
-    /**
-     * 是否有效 true-有效，false-失效
-     */
-    public static boolean verifyToken(String token) {
-        if (StringUtils.hasText(token)) {
-            return false;
-        }
         try {
-            getClaims(token);
+            return Jwts.parser().setSigningKey(TOKEN_SECRET).parseClaimsJws(token).getBody();
         } catch (Exception e) {
-            return false;
+            throw new MyException(HttpStatus.PAYMENT_REQUIRED.value(), HttpStatus.PAYMENT_REQUIRED.getReasonPhrase());
         }
-        return true;
     }
 
     public static void main(String[] args) {
         Claims claims = getClaims("eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2ODcxNjQ0MzMsImlkIjozfQ.oPxBeGjqn_waRBe6v0dEpSgfQGs29g2QuZEaJe_kaN_u6QzkzygGyU2B71uujTFKTIFPKFCD9Bc3cwYAD_CytA");
         System.err.println(claims.getExpiration());
-        System.err.println(claims.get(AuthCacheServiceImpl.SUBJECT_KEY));
+        System.err.println(claims.get(SUBJECT_KEY));
     }
 
 }

@@ -1,8 +1,10 @@
 package com.young.youngsecurity.common.security;
 
+import com.young.youngsecurity.common.exception.MyException;
 import com.young.youngsecurity.common.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,7 +51,14 @@ public class MyJwtAuthenticationFilter extends OncePerRequestFilter {
             logger.error("The claims is null.");
             throw new InternalAuthenticationServiceException("Authenticate failed!");
         }
-        Long userId = claims.get(AuthCacheServiceImpl.SUBJECT_KEY, Long.class);
+
+        String tokenPurpose = (String) claims.get(JwtUtil.TOKEN_PURPOSE);
+        if (JwtUtil.TOKEN_PURPOSE_REFRESH.equals(tokenPurpose)) {
+            //若是长token，直接抛异常
+            throw new InternalAuthenticationServiceException("Authenticate failed!");
+        }
+
+        Long userId = claims.get(JwtUtil.SUBJECT_KEY, Long.class);
         if (Objects.isNull(userId)) {
             logger.error("The userId is null.");
             throw new InternalAuthenticationServiceException("Authenticate failed!");

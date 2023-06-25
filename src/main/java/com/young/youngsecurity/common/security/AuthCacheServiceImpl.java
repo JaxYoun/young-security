@@ -13,8 +13,6 @@ import javax.annotation.Resource;
 @Component
 public class AuthCacheServiceImpl {
 
-    public static final String SUBJECT_KEY = "id";
-
     public static final String AUTH_OUTER_KEY = "auth_outer_key";
 
     private static final String AUTH_INNER_KEY_TEMPLATE = "auth_inner_key_%d";
